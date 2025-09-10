@@ -1,0 +1,77 @@
+---
+title: "Untitled"
+output: pdf_document
+date: "2024-11-04"
+---
+
+```{r}
+setwd("/Users/deokkyunhan/Desktop/AMS 317/Project Data")
+car_data = read.csv("PREPROCESSED_DATA.CSV")
+cleancar_data = na.omit(car_data)
+str(cleancar_data)
+#factorized variable
+cleancar_data$Transmission = factor(cleancar_data$Transmission)
+cleancar_data$Drivetrain = factor(cleancar_data$Drivetrain)
+cleancar_data$Owner = factor(cleancar_data$Owner)
+cleancar_data$Seller.Type = factor(cleancar_data$Seller.Type)
+cleancar_data$Fuel.Type = factor(cleancar_data$Fuel.Type)
+install.packages("corrplot")
+library(corrplot)
+# EX1: Hypotheses for regression
+# H0: βi = 0 for all i (i.e., all coefficients are zero, implying no effect)
+# H1: At least one βi ≠ 0 (i.e., at least one predictor has a significant effect)
+
+# Fitting a linear model with interactions between Year, Kilometer, and Fuel.Type
+fit3 = lm(log(cleancar_data$Price) ~ cleancar_data$Year * cleancar_data$Kilometer * cleancar_data$Fuel.Type, data = cleancar_data)
+
+# Checking normality of residuals using a Q-Q plot
+par(mfrow = c(1, 2))  # Setting up the plotting window for side-by-side plots
+qqnorm(fit3$residuals, ylab = "Residuals", main = "Normal Q-Q Plot")
+qqline(fit3$residuals)  # Adding a reference line to the Q-Q plot
+plot(fit3, which = 2)   # Generating another Q-Q plot as a secondary check
+
+# Checking independence of residuals using the Durbin-Watson test
+library(lmtest)
+indepen_test1 = dwtest(fit3, alternative = "two.sided")
+indepen_test1  # Displaying the result of the Durbin-Watson test
+
+# Selecting the best-fitting model using the regsubsets function
+library(leaps)
+bs_model1 = regsubsets(log(cleancar_data$Price) ~ cleancar_data$Year * cleancar_data$Kilometer * cleancar_data$Fuel.Type, data = cleancar_data, nbest = 1)
+summary(bs_model1)  # Displaying a summary of the best subset models
+
+# Creating an ANOVA table for the fitted model to analyze variance contributions
+anova(fit3)
+# Summary of the fitted model for EX1
+summary(fit3)
+
+# EX2: Hypotheses for regression
+# H0: βi = 0 for all i (i.e., all coefficients are zero, implying no effect)
+# H1: At least one βi ≠ 0 (i.e., at least one predictor has a significant effect)
+
+# Fitting a linear model for Max.Power with interactions among Length, Fuel.Tank.Capacity, and Width
+fit6 = lm(cleancar_data$Max.Power ~ cleancar_data$Length * cleancar_data$Fuel.Tank.Capacity * cleancar_data$Width, data = cleancar_data)
+
+# Checking normality of residuals using a Q-Q plot
+par(mfrow = c(1, 2))  # Setting up the plotting window for side-by-side plots
+qqnorm(fit6$residuals, ylab = "Residuals", main = "Normal Q-Q Plot")
+qqline(fit6$residuals)  # Adding a reference line to the Q-Q plot
+plot(fit6, which = 2)   # Generating another Q-Q plot as a secondary check
+
+# Checking independence of residuals using the Durbin-Watson test
+library(lmtest)
+indepen_test = dwtest(fit6, alternative = "two.sided")
+indepen_test  # Displaying the result of the Durbin-Watson test for independence
+
+# Selecting the best-fitting model using the regsubsets function
+library(leaps)
+bs_model = regsubsets(cleancar_data$Max.Power ~ cleancar_data$Length * cleancar_data$Fuel.Tank.Capacity * cleancar_data$Width, data = cleancar_data, nbest = 1)
+summary(bs_model)  # Displaying a summary of the best subset models
+
+# Creating an ANOVA table for the fitted model to analyze variance contributions
+anova(fit6)
+
+# Summary of the fitted model for EX2
+summary(fit6)
+```
+

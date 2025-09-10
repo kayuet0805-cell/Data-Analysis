@@ -1,0 +1,99 @@
+---
+title: "Untitled"
+output: pdf_document
+date: "2024-11-04"
+---
+
+```{r}
+#setwd("/Users/liukayuet/AMS 317")
+car_data = read.csv("/Users/liukayuet/AMS 317/PREPROCESSED_DATA.CSV")
+cleancar_data = na.omit(car_data)
+str(cleancar_data)
+```
+
+
+```{r}
+cleancar_data$Transmission = factor(cleancar_data$Transmission)
+cleancar_data$Drivetrain = factor(cleancar_data$Drivetrain)
+cleancar_data$Owner = factor(cleancar_data$Owner)
+cleancar_data$Seller.Type = factor(cleancar_data$Seller.Type)
+cleancar_data$Fuel.Type = factor(cleancar_data$Fuel.Type)
+
+#install.packages("corrplot")
+library(corrplot)
+#cor_matrix <- cor(cleancar_data[, c("Price", "Year", "Kilometer", "Max.Power","Engine", "Length", "Fuel.Tank.Capacity", "Width", "Height")]) 
+
+cor_matrix <- cor(cleancar_data[, c("Price", "Year", "Kilometer", "Max.Power","Engine", "Length", "Fuel.Tank.Capacity", "Width", "Height")])
+
+corrplot(cor_matrix, method = "circle")
+
+
+```
+
+```{r}
+library(lmtest)
+#EX1
+# h0:βi=0 where i is 1 to 7, h1 : at least βi is not equal to 0
+#fit3 = lm(log(cleancar_data$Price) ~ cleancar_data$Year * cleancar_data$Kilometer * cleancar_data$Fuel.Type, data = cleancar_data)
+
+fit3 = lm(log(cleancar_data$Price) ~ cleancar_data$Year + cleancar_data$Kilometer + cleancar_data$Fuel.Type, data = cleancar_data)
+par(mfrow = c(1,2))
+qqnorm(fit3$residuals, ylab = "Residuals", main = " ")
+qqline(fit3$residuals)
+plot(fit3, which = 2)
+indepen_test1 = dwtest(fit3, alternative ="two.sided")
+indepen_test1
+anova(fit3)
+```
+
+
+```{r}
+summary(fit3)
+```
+
+```{r}
+levels(cleancar_data$Fuel.Type)
+```
+
+```{r}
+#EX2
+# h0:βi = 0 where i is 1 to 7, at least βi is not eaual to 0 
+#fit6 = lm(cleancar_data$Engine ~ cleancar_data$Length * cleancar_data$Fuel.Tank.Capacity * cleancar_data$Width, data = cleancar_data)
+
+fit6 = lm(cleancar_data$Max.Power ~ cleancar_data$Length * cleancar_data$Fuel.Tank.Capacity * cleancar_data$Width, data = cleancar_data)
+
+qqnorm(fit6$residuals, ylab = "Residuals", main = " ")
+qqline(fit6$residuals)
+plot(fit6, which = 2)
+library(lmtest)
+indepen_test = dwtest(fit6, alternative = "two.sided")
+indepen_test
+anova(fit6)
+
+library(leaps)
+bs_model = regsubsets(cleancar_data$Max.Power ~ cleancar_data$Length * cleancar_data$Fuel.Tank.Capacity * cleancar_data$Width, data = cleancar_data, nbest = 3)
+summary(bs_model)
+
+summary(fit6)
+```
+
+
+```{r}
+#EX4
+# h0:βi = 0 where i is 1 to 3, at least βi is not eaual to 0 
+fit7 = lm(cleancar_data$Max.Power ~ cleancar_data$Length * cleancar_data$Fuel.Tank.Capacity, data = cleancar_data)
+
+qqnorm(fit7$residuals, ylab = "Residuals", main = " ")
+qqline(fit7$residuals)
+plot(fit7, which = 2)
+library(lmtest)
+indepen_test = dwtest(fit7, alternative = "two.sided")
+indepen_test
+anova(fit7)
+library(leaps)
+alterbs_model = regsubsets(cleancar_data$Engine ~ cleancar_data$Length * cleancar_data$Fuel.Tank.Capacity, data = cleancar_data, nbest = 3)
+summary(alterbs_model)
+
+summary(fit7)
+```
+
