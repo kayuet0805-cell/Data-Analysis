@@ -5,8 +5,7 @@ date: "2024-11-04"
 ---
 
 ```{r}
-#setwd("/Users/liukayuet/AMS 317")
-car_data = read.csv("/Users/liukayuet/AMS 317/PREPROCESSED_DATA.CSV")
+car_data = read.csv("/Users/PREPROCESSED_DATA.CSV")
 cleancar_data = na.omit(car_data)
 str(cleancar_data)
 ```
